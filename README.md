@@ -1,10 +1,12 @@
----
-thumbnail: https://image.zhangxiann.com/mick-haupt-8l-AK3QYFLE-unsplash.jpg
-date: 2020/5/30 19:40:20
-disqusId: zhangxian
-categories:
-- NLP
----
+这是我用于学习 Skip-gram 的笔记。
+
+文中会有一些公式，如果 github 出现公式乱码问题，请通过我的博客查看：[https://zhuanlan.zhihu.com/p/275899732](https://zhuanlan.zhihu.com/p/275899732)。
+
+下面废话不多说，教你手把手实现 Skip-gram。
+
+
+
+
 
 CBOW 和 Skip-gram 是两种训练得到词向量的方法。其中 CBOW 是从上下文字词推测目标字词，而 Skip-gram 则是从目标字词推测上下文的字词。在大型数据集上，CBOW 比 Skip-gram 效果好；但是在小的数据集上，Skip-gram 比 CBOW 效果好。本文使用 PyTorch 来实现 Skip-gram 模型，主要的论文是：[Distributed Representations of Words and Phrases and their Compositionality](http://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)
 
@@ -145,7 +147,7 @@ for word in words:
 data = [word_to_idx.get(word,word_to_idx["UNK"]) for word in words]
 ```
 
-在文本中，如`the`、`a`等词出现频率很高，但是对训练词向量没有太大帮助，为了平衡常见词和少见的词之间的频次，论文中以一定概率丢弃单词，计算公式如下：$P\left(w_{i}\right)=1-\sqrt{\frac{t}{f\left(w_{i}\right)}}$，其中$f(w_{i]})$表示单词的频率，而$t$时超参数，一般$t=10^{-5}$。使用这个公式，那些频率超过$10^{-5}$的单词就会被下采样，同时保持频率大小关系不变。
+在文本中，如`the`、`a`等词出现频率很高，但是对训练词向量没有太大帮助，为了平衡常见词和少见的词之间的频次，论文中以一定概率丢弃单词，计算公式如下：$P\left(w_{i}\right)=1-\sqrt{\frac{t}{f\left(w_{i}\right)}}$，其中$f(w_{i]})$表示单词的频率，而$t$是参数，一般$t=10^{-5}$。使用这个公式，那些频率超过$10^{-5}$的单词就会被下采样，同时保持频率大小关系不变。
 
 ```
 # 计算单词频次
@@ -341,7 +343,7 @@ for epoch in range(EPOCHES):
 
 有一个问题是：如果在 Dataset 的`__getitem__()`函数中，由于`pos_indices = list(filter(lambda i: i>=0 and i< len(self.data), pos_indices))`可能会造成数据的`size < WINDOW_SIZE*2`，这时可能会导致 DataLoader 无法将一个 Batch 的数据堆叠起来，会报错。有 3种处理方法
 
-1. 可以改为`pos_indices = [i % len(self.data) for i in pos_indices]`，对下表取余，以防超过文档范围
+1. 可以改为`pos_indices = [i % len(self.data) for i in pos_indices]`，对下标取余，以防超过文档范围
 2. 使用自定义`collate_fn`函数来处理这种情况。
 3. 或者不使用 PyTorch 的`Dataset `，而是手动生成每个 Batch 的数据。有兴趣的读者可以参考[用Pytorch实现skipgram](https://zhuanlan.zhihu.com/p/82683575)。
 
