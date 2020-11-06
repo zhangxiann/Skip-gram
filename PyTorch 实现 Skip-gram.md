@@ -147,7 +147,7 @@ for word in words:
 data = [word_to_idx.get(word,word_to_idx["UNK"]) for word in words]
 ```
 
-在文本中，如`the`、`a`等词出现频率很高，但是对训练词向量没有太大帮助，为了平衡常见词和少见的词之间的频次，论文中以一定概率丢弃单词，计算公式如下：$P\left(w_{i}\right)=1-\sqrt{\frac{t}{f\left(w_{i}\right)}}$，其中$f(w_{i]})$表示单词的频率，而$t$时超参数，一般$t=10^{-5}$。使用这个公式，那些频率超过$10^{-5}$的单词就会被下采样，同时保持频率大小关系不变。
+在文本中，如`the`、`a`等词出现频率很高，但是对训练词向量没有太大帮助，为了平衡常见词和少见的词之间的频次，论文中以一定概率丢弃单词，计算公式如下：$P\left(w_{i}\right)=1-\sqrt{\frac{t}{f\left(w_{i}\right)}}$，其中$f(w_{i]})$表示单词的频率，而$t$是参数，一般$t=10^{-5}$。使用这个公式，那些频率超过$10^{-5}$的单词就会被下采样，同时保持频率大小关系不变。
 
 ```
 # 计算单词频次
@@ -343,7 +343,7 @@ for epoch in range(EPOCHES):
 
 有一个问题是：如果在 Dataset 的`__getitem__()`函数中，由于`pos_indices = list(filter(lambda i: i>=0 and i< len(self.data), pos_indices))`可能会造成数据的`size < WINDOW_SIZE*2`，这时可能会导致 DataLoader 无法将一个 Batch 的数据堆叠起来，会报错。有 3种处理方法
 
-1. 可以改为`pos_indices = [i % len(self.data) for i in pos_indices]`，对下表取余，以防超过文档范围
+1. 可以改为`pos_indices = [i % len(self.data) for i in pos_indices]`，对下标取余，以防超过文档范围
 2. 使用自定义`collate_fn`函数来处理这种情况。
 3. 或者不使用 PyTorch 的`Dataset `，而是手动生成每个 Batch 的数据。有兴趣的读者可以参考[用Pytorch实现skipgram](https://zhuanlan.zhihu.com/p/82683575)。
 
